@@ -13,3 +13,7 @@ tmp/*
 */aws-creds
 */*.log
 */aws/credentials
+python/.idea/*
+rust/.idea/*
+rust/Cargo.lock
+rust/target/*

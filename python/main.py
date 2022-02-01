@@ -5,33 +5,42 @@ from deltalake import DeltaTable
 import sys
 
 
-def do_local_test(ctx: datafusion.ExecutionContext):
-    ctx.register_parquet('test_table', '../pems_sorted')
-    run_query(ctx)
+class DataFusionPerformanceTest:
 
+    def __init__(self):
+        self.ctx = datafusion.ExecutionContext()
 
-def do_remote_test(ctx: datafusion.ExecutionContext):
-    delta_table = DeltaTable(sys.argv[2])
-    pyarrow_table = delta_table.to_pyarrow_table()
-    record_batch = pyarrow_table.to_batches()
-    ctx.register_record_batches('test_table', [record_batch])
-    run_query(ctx)
+    def run_local(self):
+        self.ctx.register_parquet('test_table', 'pems_sorted')
+        self.perform_query()
 
+    def run_remote(self, delta_table_url):
+        delta_table = DeltaTable(delta_table_url)
+        year_tpl = ('file_year', '=', '2019')
+        month_tpl = ('file_month', '=', '5')
+        pyarrow_table = delta_table.to_pyarrow_table([year_tpl, month_tpl])
+        record_batch = pyarrow_table.to_batches()
+        self.ctx.register_record_batches('test_table', [record_batch])
+        self.perform_query()
 
-def run_query(ctx: datafusion.ExecutionContext):
-    result = ctx.sql('SELECT count(*) FROM test_table')
-    start = datetime.now()
-    res = result.collect()
-    end = datetime.now()
+    def perform_query(self):
+        result = self.ctx.sql('SELECT count(*) FROM test_table')
+        start = datetime.now()
+        res = result.collect()
+        end = datetime.now()
 
-    result.show()
-    print("Start - {}", start)
-    print("End - {}", end)
-    print("Time taken {} s".format((end - start).seconds))
+        result.show()
+        print("Start - {}", start)
+        print("End - {}", end)
+        print("Time taken {} s".format((end - start).seconds))
 
 
 if __name__ == "__main__":
-    modes = {'local': do_local_test, 'remote': do_remote_test}
-    mode = sys.argv[1]
-    ctx = datafusion.ExecutionContext()
-    modes[mode](ctx)
+    performance_test = DataFusionPerformanceTest()
+    table_url = None
+    if len(sys.argv) > 1:
+        table_url = sys.argv[1]
+    if table_url and table_url.startswith('s3://'):
+        performance_test.run_remote(table_url)
+    else:
+        performance_test.run_local()
