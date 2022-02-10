@@ -1,6 +1,6 @@
 if [ -z "$1" ]
   then
-  tar xvzf ../pems_parquet.zip
+  tar xzf ../pems_parquet.zip
 fi
 
 python main.py $1
