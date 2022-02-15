@@ -1,0 +1,4 @@
+wheel
+datafusion==0.4.0
+pyarrow==7.0.0
+deltalake==0.5.5

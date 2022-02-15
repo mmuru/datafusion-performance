@@ -7,6 +7,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+#zstd-safe = "3.1.0+zstd.1.4.9"
 datafusion = "6.0.0"
+#datafusion = "4.0.0"
 chrono = "0.4"
 tokio = { version = "1.15.0", features = ["full"] }
+#datafusion-objectstore-s3="0.1.0"
+#deltalake = "0.4.0"
+#zstd-sys = "1.5.0+zstd.1.4.9"
+datafusion-objectstore-s3 = { git = "https://github.com/datafusion-contrib/datafusion-objectstore-s3", rev = "366bb6cf51518bc1e3f71ba73f0aff13d6415711" }
+aws-types = "0.5.2"
